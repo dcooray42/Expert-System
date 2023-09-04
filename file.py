@@ -8,13 +8,13 @@ def read_file(file_path) :
         lines = file.readlines()
         for line in lines:
             raw_line = line.strip()
-            trimed_line = "".join(raw_line.split("#")[:-1]).lstrip().rstrip()
+            trimed_line = "".join(raw_line.split("#")[0:1]).lstrip().rstrip()
             final_line = "".join(trimed_line.split())
             if not len(final_line) :
                 continue
-            if final_line.startswith('='):
+            if final_line.startswith("="):
                 initial_facts = InitialFact(final_line[1:])
-            elif final_line.startswith('?'):
+            elif final_line.startswith("?"):
                 queries = Query(trimed_line[1:])
             else:
                 line_splited = final_line.split("<=>") if final_line.find("<=>") > 0 else final_line.split("=>")
