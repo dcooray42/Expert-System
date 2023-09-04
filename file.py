@@ -17,13 +17,13 @@ def read_file(file_path) :
             elif final_line.startswith('?'):
                 queries = Query(trimed_line[1:])
             else:
-                line_splited = final_line.split("=>")
+                line_splited = final_line.split("<=>") if final_line.find("<=>") > 0 else final_line.split("=>")
                 exp_1, exp_2 = is_well_formed(line_splited[0]), is_well_formed(line_splited[1])
                 if exp_1 and exp_2 :
                     rules.append(Rule(line_splited[0], line_splited[1]))
                 else :
                     malformed_str = line_splited[0] if not exp_1 else line_splited[1]
-                    print(f"This expression is malformed : {malformed_str}")
+                    raise Exception(f"This expression is malformed : {malformed_str}")
                     
 
 
@@ -40,26 +40,33 @@ def read_file(file_path) :
 def is_well_formed(expression):
     stack = []
 
-    for char in expression:
-        if char == '(':
+    for index, char in enumerate(expression) :
+        if index :
+            pre_char = expression[index - 1]
+        if char == '(' :
             stack.append(char)
-        elif char == ')':
-            if not stack or stack[-1] != '(':
-                print(1)
+        elif char == ')' :
+            if len(stack) == 0 :
                 return False
+            else :
+                if index :
+                    if pre_char in "+|!^(" :
+                        return False
             stack.pop()
-        elif char in "+|!^":
-            if not stack or stack[-1] not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ)!":
-                print(2)
-                print(stack, char)
+        elif char in "+|!^" :
+            if index == 0 and char != "!" :
                 return False
-        elif char.isalpha():
-            if stack and stack[-1] in "+|!^":
-                print(3)
-                return False
+            elif index :
+                if char != "!" and pre_char in "+|!^(" :
+                    return False
+                elif char == "!" and (pre_char.isalpha() or pre_char in "!)") :
+                    return False
+        elif char.isalpha() :
+            if index :
+                if pre_char not in "+|!^(" or pre_char.isalpha() :
+                    print(pre_char not in "+|!^(", pre_char.isalpha())
+                    return False
         else:
-            print(char)
             return False
 
-    print(f"nique ta mere {stack}")
-    return not stack
+    return len(stack) == 0
