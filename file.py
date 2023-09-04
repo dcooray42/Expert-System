@@ -17,10 +17,15 @@ def read_file(file_path) :
             elif final_line.startswith("?"):
                 queries = Query(trimed_line[1:])
             else:
-                line_splited = final_line.split("<=>") if final_line.find("<=>") > 0 else final_line.split("=>")
+                if final_line.find("<=>") > 0 :
+                    line_splited = final_line.split("<=>")
+                    log_relationship = "<=>"
+                else :
+                    line_splited = final_line.split("=>")
+                    log_relationship = "=>"
                 exp_1, exp_2 = is_well_formed(line_splited[0]), is_well_formed(line_splited[1])
                 if exp_1 and exp_2 :
-                    rules.append(Rule(line_splited[0], line_splited[1]))
+                    rules.append(Rule(convert_to_rpn(line_splited[0]), convert_to_rpn(line_splited[1]), log_relationship))
                 else :
                     malformed_str = line_splited[0] if not exp_1 else line_splited[1]
                     raise Exception(f"This expression is malformed : {malformed_str}")
@@ -29,7 +34,7 @@ def read_file(file_path) :
 
     print("Rules:")
     for rule in rules:
-        print(f"Condition: {rule.condition}, Conclusion: {rule.conclusion}")
+        print(f"Condition: {rule.condition}, Conclusion: {rule.conclusion}, Logical Relationship = {rule.log_relationship}")
 
     print("\nInitial Facts:")
     print(f"Facts: {initial_facts.facts}")
@@ -70,3 +75,27 @@ def is_well_formed(expression):
             return False
 
     return len(stack) == 0
+
+def convert_to_rpn(infix_expression):
+    precedence = {"!": 1, "+": 2, "|": 3, "^": 4}
+    output = []
+    stack = []
+
+    for token in infix_expression:
+        if token.isalpha():
+            output.append(token)
+        elif token in "+|^!":
+            while stack and stack[-1] in "+|^!" and precedence[token] <= precedence[stack[-1]]:
+                output.append(stack.pop())
+            stack.append(token)
+        elif token == '(':
+            stack.append(token)
+        elif token == ')':
+            while stack and stack[-1] != '(':
+                output.append(stack.pop())
+            stack.pop()
+
+    while stack:
+        output.append(stack.pop())
+
+    return "".join(output)
