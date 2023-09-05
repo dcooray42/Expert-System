@@ -76,22 +76,22 @@ def is_well_formed(expression):
 
     return len(stack) == 0
 
-def convert_to_rpn(infix_expression):
+def convert_to_rpn(infix_expression) :
     precedence = {"!": 1, "+": 2, "|": 3, "^": 4}
     output = []
     stack = []
 
-    for token in infix_expression:
-        if token.isalpha():
+    for token in infix_expression :
+        if token.isalpha() :
             output.append(token)
-        elif token in "+|^!":
-            while stack and stack[-1] in "+|^!" and precedence[token] <= precedence[stack[-1]]:
+        elif token in "!+|^" :
+            while stack and stack[-1] in "+|^!" and precedence[token] >= precedence[stack[-1]] :
                 output.append(stack.pop())
             stack.append(token)
-        elif token == '(':
+        elif token == '(' :
             stack.append(token)
-        elif token == ')':
-            while stack and stack[-1] != '(':
+        elif token == ')' :
+            while stack and stack[-1] != '(' :
                 output.append(stack.pop())
             stack.pop()
 
