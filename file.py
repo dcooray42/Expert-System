@@ -17,10 +17,7 @@ def read_file(file_path) :
             elif final_line.startswith("?"):
                 queries = Query(trimed_line[1:])
             else:
-                if final_line.find("<=>") > 0 :
-                    line_splited = final_line.split("<=>")
-                    log_relationship = "<=>"
-                else :
+                if final_line.find("=>") > 0 :
                     line_splited = final_line.split("=>")
                     log_relationship = "=>"
                 exp_1, exp_2 = is_well_formed(line_splited[0]), is_well_formed(line_splited[1])
