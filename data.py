@@ -1,8 +1,7 @@
 class Rule:
-    def __init__(self, condition, conclusion, log_relationship):
+    def __init__(self, condition, conclusion):
         self.condition = condition
         self.conclusion = conclusion
-        self.log_relationship = log_relationship
 
 class InitialFact:
     def __init__(self, facts):
