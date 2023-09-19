@@ -14,12 +14,16 @@ def read_file(es, file_path) :
             if final_line.startswith("="):
                 init_fact = final_line[1:]
                 for fact in init_fact :
-                    if fact not in es.known_facts.keys() :
+                    if fact not in es.known_facts.keys() and fact.isalpha() :
                         es.known_facts[fact] = Fact(fact, True, True)
                     else :
-                        raise Exception(f"Intial fact called twice or more : {fact}")
+                        raise Exception(f"Intial fact called twice or more or is not a alphabetic character : {fact}")
             elif final_line.startswith("?"):
-                queries = Query(trimed_line[1:])
+                for char in final_line[1:] :
+                    if char.isalpha() and char not in es.queries :
+                        es.queries.append(char)
+                    else :
+                        raise Exception(f"This character is not an alphabetic character or is already present in the query line : {char}")
             else:
                 if final_line.find("=>") > 0 :
                     line_splited = final_line.split("=>")
@@ -47,7 +51,7 @@ def read_file(es, file_path) :
         print(f"Fact: {fact}, es.fact = {info.fact}, value = {info.value}, check = {info.check}")
 
     print("\nQueries:")
-    print(f"Symbols: {queries.symbols}")
+    print(f"Symbols: {es.queries}")
 
 def is_well_formed(expression):
     stack = []

@@ -17,6 +17,7 @@ class ExpertSystem:
     def __init__(self):
         self.rules = []  # List of Rule objects
         self.known_facts = {}  # Dictionary to store known facts
+        self.queries = []
 
     def add_rule(self, expression, conclusion):
         rule = Rule(expression, conclusion)
