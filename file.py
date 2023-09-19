@@ -1,9 +1,8 @@
 from data import Rule, Fact, Query
 
-def read_file(file_path, es) :
+def read_file(es, file_path) :
     with open(file_path, "r") as file :
         rules = []
-        initial_facts = None
         queries = None
         lines = file.readlines()
         for line in lines:
@@ -26,7 +25,12 @@ def read_file(file_path, es) :
                     line_splited = final_line.split("=>")
                 exp_1, exp_2 = is_well_formed(line_splited[0]), is_well_formed(line_splited[1])
                 if exp_1 and exp_2 :
-                    rules.append(Rule(convert_to_rpn(line_splited[0]), convert_to_rpn(line_splited[1])))
+                    condition = convert_to_rpn(line_splited[0])
+                    conclusion = convert_to_rpn(line_splited[1])
+                    if not any(char in "|^" for char in conclusion) :
+                        rules.append(Rule(condition, conclusion))
+                    else :
+                        raise Exception(f"One or multiple of these operations (OR / |) or (XOR / ^) is / are present in the conclusion.")
                 else :
                     malformed_str = line_splited[0] if not exp_1 else line_splited[1]
                     raise Exception(f"This expression is malformed : {malformed_str}")

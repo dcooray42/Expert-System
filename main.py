@@ -9,9 +9,8 @@ def main() :
     args = parser.parse_args()
 #    try :
     args = vars(args)
-    args["es"] = es
     print(args)
-    read_file(**args)
+    read_file(es, **args)
 #    except Exception as e :
 #        print(str(e))
 #        parser.print_help()
