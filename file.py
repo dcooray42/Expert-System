@@ -2,8 +2,6 @@ from data import Rule, Fact, Query
 
 def read_file(es, file_path) :
     with open(file_path, "r") as file :
-        rules = []
-        queries = None
         lines = file.readlines()
         for line in lines:
             raw_line = line.strip()
@@ -22,6 +20,8 @@ def read_file(es, file_path) :
                 for char in final_line[1:] :
                     if char.isalpha() and char not in es.queries :
                         es.queries.append(char)
+                        if char not in es.known_facts.keys() :
+                            es.known_facts[char] = Fact(char)
                     else :
                         raise Exception(f"This character is not an alphabetic character or is already present in the query line : {char}")
             else:
@@ -32,17 +32,17 @@ def read_file(es, file_path) :
                     condition = convert_to_rpn(line_splited[0])
                     conclusion = convert_to_rpn(line_splited[1])
                     if not any(char in "|^" for char in conclusion) :
-                        rules.append(Rule(condition, conclusion))
+                        es.rules.append(Rule(condition, conclusion))
                     else :
                         raise Exception(f"One or multiple of these operations (OR / |) or (XOR / ^) is / are present in the conclusion.")
                 else :
                     malformed_str = line_splited[0] if not exp_1 else line_splited[1]
                     raise Exception(f"This expression is malformed : {malformed_str}")
-                    
+    populate_facts(es)    
 
 
     print("Rules:")
-    for rule in rules:
+    for rule in es.rules:
         print(f"Condition: {rule.condition}, Conclusion: {rule.conclusion}")
 
     print("\nInitial Facts:")
@@ -110,3 +110,15 @@ def convert_to_rpn(infix_expression) :
         output.append(stack.pop())
 
     return "".join(output)
+
+def populate_facts(es) :
+
+    def parse_expression(es, expr) :
+        print(expr)
+        for fact in expr :
+            if fact.isalpha() and fact not in es.known_facts.keys() :
+                es.known_facts[fact] = Fact(fact)
+
+    for rule in es.rules :
+        parse_expression(es, rule.condition)
+        parse_expression(es, rule.conclusion)
