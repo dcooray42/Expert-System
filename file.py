@@ -1,6 +1,6 @@
-from data import Rule, InitialFact, Query
+from data import Rule, Fact, Query
 
-def read_file(file_path) :
+def read_file(file_path, es) :
     with open(file_path, "r") as file :
         rules = []
         initial_facts = None
@@ -13,7 +13,12 @@ def read_file(file_path) :
             if not len(final_line) :
                 continue
             if final_line.startswith("="):
-                initial_facts = InitialFact(final_line[1:])
+                init_fact = final_line[1:]
+                for fact in init_fact :
+                    if fact not in es.known_facts.keys() :
+                        es.known_facts[fact] = Fact(fact, True, True)
+                    else :
+                        raise Exception(f"Intial fact called twice or more : {fact}")
             elif final_line.startswith("?"):
                 queries = Query(trimed_line[1:])
             else:
@@ -33,7 +38,9 @@ def read_file(file_path) :
         print(f"Condition: {rule.condition}, Conclusion: {rule.conclusion}")
 
     print("\nInitial Facts:")
-    print(f"Facts: {initial_facts.facts}")
+    for fact in es.known_facts.keys() :
+        info = es.known_facts[fact]
+        print(f"Fact: {fact}, es.fact = {info.fact}, value = {info.value}, check = {info.check}")
 
     print("\nQueries:")
     print(f"Symbols: {queries.symbols}")

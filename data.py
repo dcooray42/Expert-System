@@ -3,9 +3,11 @@ class Rule:
         self.condition = condition
         self.conclusion = conclusion
 
-class InitialFact:
-    def __init__(self, facts):
-        self.facts = facts
+class Fact:
+    def __init__(self, fact, value=False, check=False):
+        self.fact = fact
+        self.value = value
+        self.check = check
 
 class Query:
     def __init__(self, symbols):
@@ -22,6 +24,3 @@ class ExpertSystem:
 
     def add_fact(self, fact, value=True):
         self.known_facts[fact] = value
-
-    def query(self, goal):
-        return backward_chain(self, goal)
