@@ -1,4 +1,4 @@
-from data import Rule, Fact, Query
+from data import Rule, Fact
 
 def read_file(es, file_path) :
     with open(file_path, "r") as file :
@@ -12,16 +12,17 @@ def read_file(es, file_path) :
             if final_line.startswith("="):
                 init_fact = final_line[1:]
                 for fact in init_fact :
-                    if fact not in es.known_facts.keys() and fact.isalpha() :
-                        es.known_facts[fact] = Fact(fact, True, True)
+                    if fact not in es.facts.keys() and fact.isalpha() :
+                        es.facts[fact] = Fact(fact, True, True)
+                        es.initial_facts.append(fact)
                     else :
                         raise Exception(f"Intial fact called twice or more or is not a alphabetic character : {fact}")
             elif final_line.startswith("?"):
                 for char in final_line[1:] :
                     if char.isalpha() and char not in es.queries :
                         es.queries.append(char)
-                        if char not in es.known_facts.keys() :
-                            es.known_facts[char] = Fact(char)
+                        if char not in es.facts.keys() :
+                            es.facts[char] = Fact(char)
                     else :
                         raise Exception(f"This character is not an alphabetic character or is already present in the query line : {char}")
             else:
@@ -38,7 +39,7 @@ def read_file(es, file_path) :
                 else :
                     malformed_str = line_splited[0] if not exp_1 else line_splited[1]
                     raise Exception(f"This expression is malformed : {malformed_str}")
-    populate_facts(es)    
+    populate_facts(es)
 
 
     print("Rules:")
@@ -46,12 +47,15 @@ def read_file(es, file_path) :
         print(f"Condition: {rule.condition}, Conclusion: {rule.conclusion}")
 
     print("\nInitial Facts:")
-    for fact in es.known_facts.keys() :
-        info = es.known_facts[fact]
+    for fact in es.facts.keys() :
+        info = es.facts[fact]
         print(f"Fact: {fact}, es.fact = {info.fact}, value = {info.value}, check = {info.check}")
 
     print("\nQueries:")
     print(f"Symbols: {es.queries}")
+
+    print("\nInitial facts :")
+    print(f"Symbols: {es.initial_facts}")
 
 def is_well_formed(expression):
     stack = []
@@ -116,8 +120,8 @@ def populate_facts(es) :
     def parse_expression(es, expr) :
         print(expr)
         for fact in expr :
-            if fact.isalpha() and fact not in es.known_facts.keys() :
-                es.known_facts[fact] = Fact(fact)
+            if fact.isalpha() and fact not in es.facts.keys() :
+                es.facts[fact] = Fact(fact)
 
     for rule in es.rules :
         parse_expression(es, rule.condition)

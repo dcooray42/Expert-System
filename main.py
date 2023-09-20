@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from data import ExpertSystem
+from engine import backward_chain
 from file import read_file
 
 def main() :
@@ -11,6 +12,8 @@ def main() :
     args = vars(args)
     print(args)
     read_file(es, **args)
+    for query in es.queries :
+        backward_chain(es, query)
 #    except Exception as e :
 #        print(str(e))
 #        parser.print_help()
