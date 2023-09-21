@@ -5,9 +5,11 @@ def evaluate_expression(es, expression) :
         if token.isalpha() :
             stack.append(token)
         else :
-            operand = backward_chain(es, stack.pop())
+            operand = stack.pop()
+            operand = backward_chain(es, operand) if isinstance(operand, str) else operand
             if token in "+|^" :
-                operand_bis = backward_chain(es, stack.pop())
+                operand_bis = stack.pop()
+                operand_bis = backward_chain(es, operand_bis) if isinstance(operand_bis, str) else operand
             if token == '+' :
                 result = operand_bis and operand
             elif token == '|' :
@@ -15,22 +17,20 @@ def evaluate_expression(es, expression) :
             elif token == '!' :
                 result = not operand
             elif token == '^' :
-                result = operand_bis != operand  # XOR is not equal
+                result = operand_bis != operand
             stack.append(result)
-
-    # The result should be on the top of the stack
     return stack[0]
 
 
 def backward_chain(es, query) :
-    def val_to_check(es, conclusion, value) :
+    def val_to_check(es, conclusion, value) : # cette partie reste encore a fix, selon l'expression je dois mettre les bonnes valeurs
         for token in conclusion :
             if token.isalpha() :
                 if es.facts[token].value != value and es.facts[token].check == True :
                     return False
         return True
 
-    def update_facts(es, conclusion, value) :
+    def update_facts(es, conclusion, value) : # cette partie reste encore a fix, selon l'expression je dois mettre les bonnes valeurs
         for token in conclusion :
             if token.isalpha() :
                 es.facts[token].value = value
@@ -42,8 +42,9 @@ def backward_chain(es, query) :
     for rule in es.rules :
         if query in rule.conclusion and len(set(es.initial_facts).intersection(set(rule.conclusion))) == 0 :
             result = evaluate_expression(es, rule.condition)
-            if val_to_check(es, rule.conlusion, result) :
+            if val_to_check(es, rule.conclusion, result) :
                 update_facts(es, rule.conclusion, result)
                 return result
 
+    update_facts(es, [query], False)
     return False

@@ -14,6 +14,9 @@ def main() :
     read_file(es, **args)
     for query in es.queries :
         backward_chain(es, query)
+    print("Queries :")
+    for query in es.queries :
+        print(f"{query} is {es.facts[query].value}")
 #    except Exception as e :
 #        print(str(e))
 #        parser.print_help()
