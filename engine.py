@@ -23,18 +23,37 @@ def evaluate_expression(es, expression) :
 
 
 def backward_chain(es, query) :
-    def val_to_check(es, conclusion, value) : # cette partie reste encore a fix, selon l'expression je dois mettre les bonnes valeurs
+    def val_to_check(es, conclusion, value) :
+        stack = []
         for token in conclusion :
             if token.isalpha() :
-                if es.facts[token].value != value and es.facts[token].check == True :
-                    return False
+                stack.append([token, True])
+            elif token == "!" :
+                top_stack = stack.pop()
+                top_stack[1] = False
+                stack.append(top_stack)
+        for token_combination in stack :
+            token = token_combination[0]
+            token_state = token_combination[1]
+            if ((es.facts[token].value != value and token_state == True)
+                or (es.facts[token].value == value and token_state == False)) and es.facts[token].check == True :
+                return False
         return True
 
-    def update_facts(es, conclusion, value) : # cette partie reste encore a fix, selon l'expression je dois mettre les bonnes valeurs
+    def update_facts(es, conclusion, value) :
+        stack = []
         for token in conclusion :
             if token.isalpha() :
-                es.facts[token].value = value
-                es.facts[token].check = True
+                stack.append([token, True])
+            elif token == "!" :
+                top_stack = stack.pop()
+                top_stack[1] = False
+                stack.append(top_stack)
+        for token_combination in stack :
+            token = token_combination[0]
+            token_state = token_combination[1]
+            es.facts[token].value = value if token_state else not value
+            es.facts[token].check = True
 
     if es.facts[query].check == True :
         return es.facts[query].value
