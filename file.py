@@ -41,22 +41,6 @@ def read_file(es, file_path) :
                     raise Exception(f"This expression is malformed : {malformed_str}")
     populate_facts(es)
 
-
-    print("Rules:")
-    for rule in es.rules:
-        print(f"Condition: {rule.condition}, Conclusion: {rule.conclusion}")
-
-    print("\nInitial Facts:")
-    for fact in es.facts.keys() :
-        info = es.facts[fact]
-        print(f"Fact: {fact}, es.fact = {info.fact}, value = {info.value}, check = {info.check}")
-
-    print("\nQueries:")
-    print(f"Symbols: {es.queries}")
-
-    print("\nInitial facts :")
-    print(f"Symbols: {es.initial_facts}")
-
 def is_well_formed(expression):
     stack = []
 
@@ -84,7 +68,6 @@ def is_well_formed(expression):
         elif char.isalpha() :
             if index :
                 if pre_char not in "+|!^(" or pre_char.isalpha() :
-                    print(pre_char not in "+|!^(", pre_char.isalpha())
                     return False
         else:
             return False
@@ -118,7 +101,6 @@ def convert_to_rpn(infix_expression) :
 def populate_facts(es) :
 
     def parse_expression(es, expr) :
-        print(expr)
         for fact in expr :
             if fact.isalpha() and fact not in es.facts.keys() :
                 es.facts[fact] = Fact(fact)

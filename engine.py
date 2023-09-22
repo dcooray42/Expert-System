@@ -23,6 +23,7 @@ def evaluate_expression(es, expression) :
 
 
 def backward_chain(es, query) :
+    
     def val_to_check(es, conclusion, value) :
         stack = []
         for token in conclusion :

@@ -10,7 +10,6 @@ def main() :
     args = parser.parse_args()
     try :
         args = vars(args)
-        print(args)
         read_file(es, **args)
         for query in es.queries :
             backward_chain(es, query)
