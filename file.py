@@ -43,7 +43,10 @@ def read_file(es, file_path) :
                     raise Exception(f"This expression is malformed : {final_line}")
     populate_facts(es)
 
-def is_well_formed(expression):
+def is_well_formed(expression) :
+    if len(expression) == 0 :
+        return False
+    
     stack = []
 
     for index, char in enumerate(expression) :
