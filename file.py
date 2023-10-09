@@ -3,13 +3,13 @@ from data import Rule, Fact
 def read_file(es, file_path) :
     with open(file_path, "r") as file :
         lines = file.readlines()
-        for line in lines:
+        for line in lines :
             raw_line = line.strip()
             trimed_line = "".join(raw_line.split("#")[0:1]).lstrip().rstrip()
             final_line = "".join(trimed_line.split())
             if not len(final_line) :
                 continue
-            if final_line.startswith("="):
+            if final_line.startswith("=") :
                 init_fact = final_line[1:]
                 for fact in init_fact :
                     if fact not in es.facts.keys() and fact.isalpha() :
@@ -17,7 +17,7 @@ def read_file(es, file_path) :
                         es.initial_facts.append(fact)
                     else :
                         raise Exception(f"Intial fact called twice or more or is not a alphabetic character : {fact}")
-            elif final_line.startswith("?"):
+            elif final_line.startswith("?") :
                 for char in final_line[1:] :
                     if char.isalpha() and char not in es.queries :
                         es.queries.append(char)
@@ -25,20 +25,22 @@ def read_file(es, file_path) :
                             es.facts[char] = Fact(char)
                     else :
                         raise Exception(f"This character is not an alphabetic character or is already present in the query line : {char}")
-            else:
+            else :
                 if final_line.find("=>") > 0 :
                     line_splited = final_line.split("=>")
-                exp_1, exp_2 = is_well_formed(line_splited[0]), is_well_formed(line_splited[1])
-                if exp_1 and exp_2 :
-                    condition = convert_to_rpn(line_splited[0])
-                    conclusion = convert_to_rpn(line_splited[1])
-                    if not any(char in "|^" for char in conclusion) :
-                        es.rules.append(Rule(condition, conclusion))
+                    exp_1, exp_2 = is_well_formed(line_splited[0]), is_well_formed(line_splited[1])
+                    if exp_1 and exp_2 :
+                        condition = convert_to_rpn(line_splited[0])
+                        conclusion = convert_to_rpn(line_splited[1])
+                        if not any(char in "|^" for char in conclusion) :
+                            es.rules.append(Rule(condition, conclusion))
+                        else :
+                            raise Exception(f"One or multiple of these operations (OR / |) or (XOR / ^) is / are present in the conclusion.")
                     else :
-                        raise Exception(f"One or multiple of these operations (OR / |) or (XOR / ^) is / are present in the conclusion.")
-                else :
-                    malformed_str = line_splited[0] if not exp_1 else line_splited[1]
-                    raise Exception(f"This expression is malformed : {malformed_str}")
+                        malformed_str = line_splited[0] if not exp_1 else line_splited[1]
+                        raise Exception(f"This expression is malformed : {malformed_str}")
+                else:
+                    raise Exception(f"This expression is malformed : {final_line}")
     populate_facts(es)
 
 def is_well_formed(expression):
