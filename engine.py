@@ -1,4 +1,7 @@
 def evaluate_expression(es, expression) :
+    if len(expression) == 1 :
+        operand = expression[0]
+        return backward_chain(es, operand)
     stack = []
 
     for token in expression :
