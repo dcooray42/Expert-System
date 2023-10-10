@@ -2,7 +2,6 @@ class Rule:
     def __init__(self, condition, conclusion):
         self.condition = condition
         self.conclusion = conclusion
-        self.facts = []
 
     def __repr__(self):
         return self.__str__()
@@ -35,7 +34,7 @@ class Fact:
 
 class ExpertSystem:
     def __init__(self):
-        self.facts = {}  # Dictionary to store known facts
+        self.facts = {}
         self.queries = []
 
     def __repr__(self) -> str:
@@ -47,3 +46,18 @@ class ExpertSystem:
             fact += self.facts[fact_info].__repr__()
         queries = f"Queries: {self.queries}"
         return fact + queries
+    
+    def populate_facts(self, rules):
+
+        def parse_expression(expr, rule):
+            for index, fact in enumerate(expr):
+                if fact.isalpha():
+                    if fact not in self.facts.keys():
+                        self.facts[fact] = Fact(fact)
+                    expr[index] = self.facts[fact]
+                    self.facts[fact].rules.append(rule)
+                    
+
+        for rule in rules:
+            parse_expression(rule.condition, rule)
+            parse_expression(rule.conclusion, rule)

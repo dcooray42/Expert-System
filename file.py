@@ -41,7 +41,7 @@ def read_file(es, file_path):
                         raise Exception(f"This expression is malformed: {malformed_str}")
                 else:
                     raise Exception(f"This expression is malformed: {final_line}")
-    populate_facts(es, rules)
+    es.populate_facts(rules)
 
 def is_well_formed(expression):
     if len(expression) == 0:
@@ -101,19 +101,5 @@ def convert_to_rpn(infix_expression):
     while stack:
         output.append(stack.pop())
 
-    return "".join(output)
-
-def populate_facts(es, rules):
-
-    def parse_expression(es, expr, rule):
-        for fact in expr:
-            if fact.isalpha():
-                if fact not in es.facts.keys():
-                    es.facts[fact] = Fact(fact)
-                es.facts[fact].rules.append(rule)
-                rule.facts.append(es.facts[fact])
-
-    for rule in rules:
-        parse_expression(es, rule.condition, rule)
-        parse_expression(es, rule.conclusion, rule)
+    return output
     

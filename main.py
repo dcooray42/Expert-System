@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from data import ExpertSystem
+from data import ExpertSystem, Fact
 from engine import backward_chain
 from file import read_file
 
