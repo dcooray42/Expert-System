@@ -69,6 +69,10 @@ def backward_chain(query):
                     return False
             i += 1
         return True
+    
+    def check_result(rslt):
+        for iter in rslt:
+
 
 #    print(f"{query.fact} = {query.value}, {query.check}")
     store_rslt = []
@@ -92,9 +96,10 @@ def backward_chain(query):
 #            print("\n----------------------------")
             rule_rslt.append(evaluate_expression(rule.condition))
             rule_rslt.append(fact_sign(rule.conclusion, query))
-            if val_to_check(rule.conclusion, result):
-                update_facts(rule.conclusion, result)
-                return result
+            store_rslt.append(rule_rslt)
+#            if val_to_check(rule.conclusion, result):
+#                update_facts(rule.conclusion, result)
+#                return result
 
     update_facts([query], False)
     return False
