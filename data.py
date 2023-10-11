@@ -11,6 +11,7 @@ class Rule:
         conclusion = f"Conclusion: {self.conclusion}\n"
         return condition + conclusion
 
+
 class Fact:
     def __init__(self, fact, value=False, check=False, initial_fact=False):
         self.fact = fact
@@ -31,6 +32,7 @@ class Fact:
         for rule in self.rules:
             rules += f"Rules: {rule}\n"
         return fact + value + check + init_fact + rules
+
 
 class ExpertSystem:
     def __init__(self):
@@ -56,7 +58,6 @@ class ExpertSystem:
                         self.facts[fact] = Fact(fact)
                     expr[index] = self.facts[fact]
                     self.facts[fact].rules.append(rule)
-                    
 
         for rule in rules:
             parse_expression(rule.condition, rule)
