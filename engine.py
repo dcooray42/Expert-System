@@ -61,25 +61,37 @@ def backward_chain(query):
             token.value = value if token_state else not value
             token.check = True
 
-    print(f"{query.fact} = {query.value}, {query.check}")
+    def fact_sign(conclusion, fact):
+        index = 1
+        while index < len(conclusion):
+            if conclusion[index - 1] == fact:
+                if conclusion[index] == "!":
+                    return False
+            i += 1
+        return True
+
+#    print(f"{query.fact} = {query.value}, {query.check}")
+    store_rslt = []
     if query.check == True:
         return query.value
 
     for rule in query.rules:
         if query in rule.conclusion:
-            for token in rule.condition:
-                if isinstance(token, Fact):
-                    print(token.fact, end="")
-                else:
-                    print(token, end="")
-            print(" = ", end="")
-            for token in rule.conclusion:
-                if isinstance(token, Fact):
-                    print(token.fact, end="")
-                else:
-                    print(token, end="")
-            print("\n----------------------------")
-            result = evaluate_expression(rule.condition)
+            rule_rslt = []
+#            for token in rule.condition:
+#                if isinstance(token, Fact):
+#                    print(token.fact, end="")
+#                else:
+#                    print(token, end="")
+#            print(" = ", end="")
+#            for token in rule.conclusion:
+#                if isinstance(token, Fact):
+#                    print(token.fact, end="")
+#                else:
+#                    print(token, end="")
+#            print("\n----------------------------")
+            rule_rslt.append(evaluate_expression(rule.condition))
+            rule_rslt.append(fact_sign(rule.conclusion, query))
             if val_to_check(rule.conclusion, result):
                 update_facts(rule.conclusion, result)
                 return result
