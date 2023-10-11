@@ -19,10 +19,11 @@ def read_file(es, file_path):
                         raise Exception(f"Intial fact called twice or more or is not a alphabetic character: {fact}")
             elif final_line.startswith("?"):
                 for char in final_line[1:]:
-                    if char.isalpha() and char not in es.queries:
-                        es.queries.append(char)
+                    if char.isalpha():
                         if char not in es.facts.keys():
                             es.facts[char] = Fact(char)
+                        if es.facts[char] not in es.queries:
+                            es.queries.append(es.facts[char])
                     else:
                         raise Exception(f"This character is not an alphabetic character or is already present in the query line: {char}")
             else:

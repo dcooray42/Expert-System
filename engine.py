@@ -1,18 +1,20 @@
-def evaluate_expression(es, expression):
+from data import Fact
+
+def evaluate_expression(expression):
     if len(expression) == 1:
         operand = expression[0]
-        return backward_chain(es, operand)
+        return backward_chain(operand)
     stack = []
 
     for token in expression:
-        if token.isalpha():
+        if isinstance(token, Fact):
             stack.append(token)
         else:
             operand = stack.pop()
-            operand = backward_chain(es, operand) if isinstance(operand, str) else operand
+            operand = backward_chain(operand) if isinstance(operand, Fact) else operand
             if token in "+|^":
                 operand_bis = stack.pop()
-                operand_bis = backward_chain(es, operand_bis) if isinstance(operand_bis, str) else operand
+                operand_bis = backward_chain(operand_bis) if isinstance(operand_bis, Fact) else operand
             if token == '+':
                 result = operand_bis and operand
             elif token == '|':
@@ -25,12 +27,12 @@ def evaluate_expression(es, expression):
     return stack[0]
 
 
-def backward_chain(es, query):
+def backward_chain(query):
     
-    def val_to_check(es, conclusion, value):
+    def val_to_check(conclusion, value):
         stack = []
         for token in conclusion:
-            if token.isalpha():
+            if isinstance(token, Fact):
                 stack.append([token, True])
             elif token == "!":
                 top_stack = stack.pop()
@@ -39,15 +41,15 @@ def backward_chain(es, query):
         for token_combination in stack:
             token = token_combination[0]
             token_state = token_combination[1]
-            if ((es.facts[token].value != value and token_state == True)
-                or (es.facts[token].value == value and token_state == False)) and es.facts[token].check == True:
+            if ((token.value != value and token_state == True)
+                or (token.value == value and token_state == False)) and token.check == True:
                 return False
         return True
 
-    def update_facts(es, conclusion, value):
+    def update_facts(conclusion, value):
         stack = []
         for token in conclusion:
-            if token.isalpha():
+            if isinstance(token, Fact):
                 stack.append([token, True])
             elif token == "!":
                 top_stack = stack.pop()
@@ -56,18 +58,31 @@ def backward_chain(es, query):
         for token_combination in stack:
             token = token_combination[0]
             token_state = token_combination[1]
-            es.facts[token].value = value if token_state else not value
-            es.facts[token].check = True
+            token.value = value if token_state else not value
+            token.check = True
 
-    if es.facts[query].check == True:
-        return es.facts[query].value
+    print(f"{query.fact} = {query.value}, {query.check}")
+    if query.check == True:
+        return query.value
 
-    for rule in es.rules:
-        if query in rule.conclusion and len(set(es.initial_facts).intersection(set(rule.conclusion))) == 0:
-            result = evaluate_expression(es, rule.condition)
-            if val_to_check(es, rule.conclusion, result):
-                update_facts(es, rule.conclusion, result)
+    for rule in query.rules:
+        if query in rule.conclusion:
+            for token in rule.condition:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print(" = ", end="")
+            for token in rule.conclusion:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print("\n----------------------------")
+            result = evaluate_expression(rule.condition)
+            if val_to_check(rule.conclusion, result):
+                update_facts(rule.conclusion, result)
                 return result
 
-    update_facts(es, [query], False)
+    update_facts([query], False)
     return False
