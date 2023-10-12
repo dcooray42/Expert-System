@@ -14,7 +14,7 @@ def evaluate_expression(expression):
             operand = backward_chain(operand) if isinstance(operand, Fact) else operand
             if token in "+|^":
                 operand_bis = stack.pop()
-                operand_bis = backward_chain(operand_bis) if isinstance(operand_bis, Fact) else operand
+                operand_bis = backward_chain(operand_bis) if isinstance(operand_bis, Fact) else operand_bis
             if token == '+':
                 result = operand_bis and operand
             elif token == '|':
@@ -35,7 +35,7 @@ def backward_chain(query):
             if conclusion[index - 1] == fact:
                 if conclusion[index] == "!":
                     return False
-            i += 1
+            index += 1
         return True
     
     def return_value(rslt):
@@ -60,26 +60,26 @@ def backward_chain(query):
             return False
 
 
-#    print(f"{query.fact} = {query.value}, {query.check}")
+    print(f"{query.fact} = {query.value}, {query.check}")
     store_rslt = []
     if query.check == True:
         return query.value
 
     for rule in query.rules:
         if query in rule.conclusion:
-#            print(f"query : {query.fact} | ", end="")
-#            for token in rule.condition:
-#                if isinstance(token, Fact):
-#                    print(token.fact, end="")
-#                else:
-#                    print(token, end="")
-#            print(" = ", end="")
-#            for token in rule.conclusion:
-#                if isinstance(token, Fact):
-#                    print(token.fact, end="")
-#                else:
-#                    print(token, end="")
-#            print("\n----------------------------")
+            print(f"query : {query.fact} | ", end="")
+            for token in rule.condition:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print(" = ", end="")
+            for token in rule.conclusion:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print("\n----------------------------")
             rule_rslt = []
 
             rule_rslt.append(evaluate_expression(rule.condition))
@@ -87,5 +87,5 @@ def backward_chain(query):
             store_rslt.append(rule_rslt)
     query.value = return_value(store_rslt)
     query.check = True
-#    print(f"after {query.fact} = {query.value}, {query.check}")
+    print(f"after {query.fact} = {query.value}, {query.check}")
     return query.value

@@ -13,19 +13,26 @@ def read_file(es, file_path):
             if final_line.startswith("="):
                 init_fact = final_line[1:]
                 for fact in init_fact:
-                    if fact not in es.facts.keys() and fact.isalpha():
-                        es.facts[fact] = Fact(fact, True, True, True)
+                    if fact.isalpha():
+                        if fact not in es.facts.keys():
+                            es.facts[fact] = Fact(fact, True, True)
+                        elif not es.facts[fact].check_already_present():
+                            es.facts[fact].initial_fact()
+                        else:
+                            raise Exception(f"Initial fact called twice or more: {fact}")
                     else:
-                        raise Exception(f"Intial fact called twice or more or is not a alphabetic character: {fact}")
+                        raise Exception(f"Intial fact is not a alphabetic character: {fact}")
             elif final_line.startswith("?"):
                 for char in final_line[1:]:
                     if char.isalpha():
                         if char not in es.facts.keys():
                             es.facts[char] = Fact(char)
-                        if es.facts[char] not in es.queries:
-                            es.queries.append(es.facts[char])
+                            if es.facts[char] not in es.queries:
+                                es.queries.append(es.facts[char])
+                        else:
+                            raise Exception(f"This character is already present in the query line: {char}")
                     else:
-                        raise Exception(f"This character is not an alphabetic character or is already present in the query line: {char}")
+                        raise Exception(f"This character is not an alphabetic character in the query line: {char}")
             else:
                 if final_line.find("=>") > 0:
                     line_splited = final_line.split("=>")
