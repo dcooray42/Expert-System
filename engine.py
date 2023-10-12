@@ -29,37 +29,37 @@ def evaluate_expression(expression):
 
 def backward_chain(query):
     
-    def val_to_check(conclusion, value):
-        stack = []
-        for token in conclusion:
-            if isinstance(token, Fact):
-                stack.append([token, True])
-            elif token == "!":
-                top_stack = stack.pop()
-                top_stack[1] = False
-                stack.append(top_stack)
-        for token_combination in stack:
-            token = token_combination[0]
-            token_state = token_combination[1]
-            if ((token.value != value and token_state == True)
-                or (token.value == value and token_state == False)) and token.check == True:
-                return False
-        return True
-
-    def update_facts(conclusion, value):
-        stack = []
-        for token in conclusion:
-            if isinstance(token, Fact):
-                stack.append([token, True])
-            elif token == "!":
-                top_stack = stack.pop()
-                top_stack[1] = False
-                stack.append(top_stack)
-        for token_combination in stack:
-            token = token_combination[0]
-            token_state = token_combination[1]
-            token.value = value if token_state else not value
-            token.check = True
+#    def val_to_check(conclusion, value):
+#        stack = []
+#        for token in conclusion:
+#            if isinstance(token, Fact):
+#                stack.append([token, True])
+#            elif token == "!":
+#                top_stack = stack.pop()
+#                top_stack[1] = False
+#                stack.append(top_stack)
+#        for token_combination in stack:
+#            token = token_combination[0]
+#            token_state = token_combination[1]
+#            if ((token.value != value and token_state == True)
+#                or (token.value == value and token_state == False)) and token.check == True:
+#                return False
+#        return True
+#
+#    def update_facts(conclusion, value):
+#        stack = []
+#        for token in conclusion:
+#            if isinstance(token, Fact):
+#                stack.append([token, True])
+#            elif token == "!":
+#                top_stack = stack.pop()
+#                top_stack[1] = False
+#                stack.append(top_stack)
+#        for token_combination in stack:
+#            token = token_combination[0]
+#            token_state = token_combination[1]
+#            token.value = value if token_state else not value
+#            token.check = True
 
     def fact_sign(conclusion, fact):
         index = 1
@@ -70,36 +70,62 @@ def backward_chain(query):
             i += 1
         return True
     
-    def check_result(rslt):
+    def return_value(rslt):
+        false_false = False
+        false_true = False
+        true_false = False
+        true_true = False
         for iter in rslt:
+            if iter[0] == False and iter[1] == False:
+                false_false = True
+            elif iter[0] == False and iter[1] == True:
+                false_true = True
+            elif iter[0] == True and iter[1] == False:
+                true_false = True
+            else:
+                true_true = True
+        if (false_false and false_true) or (true_false and true_true):
+            raise Exception("error: Enexpected behaviour during value assignation")
+        if true_true or false_false:
+            return True
+        else:
+            return False
 
 
-#    print(f"{query.fact} = {query.value}, {query.check}")
+    print(f"{query.fact} = {query.value}, {query.check}")
     store_rslt = []
     if query.check == True:
         return query.value
 
     for rule in query.rules:
         if query in rule.conclusion:
+            print(f"query : {query.fact} | ", end="")
+            for token in rule.condition:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print(" = ", end="")
+            for token in rule.conclusion:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print("\n----------------------------")
             rule_rslt = []
-#            for token in rule.condition:
-#                if isinstance(token, Fact):
-#                    print(token.fact, end="")
-#                else:
-#                    print(token, end="")
-#            print(" = ", end="")
-#            for token in rule.conclusion:
-#                if isinstance(token, Fact):
-#                    print(token.fact, end="")
-#                else:
-#                    print(token, end="")
-#            print("\n----------------------------")
+
             rule_rslt.append(evaluate_expression(rule.condition))
             rule_rslt.append(fact_sign(rule.conclusion, query))
             store_rslt.append(rule_rslt)
+    query.value = return_value(store_rslt)
+    query.check = True
+    print(f"after {query.fact} = {query.value}, {query.check}")
+    return query.value
 #            if val_to_check(rule.conclusion, result):
 #                update_facts(rule.conclusion, result)
 #                return result
 
-    update_facts([query], False)
-    return False
+#    update_facts([query], False)
+#    query.value = False
+#    query.check = True
+#    return False
