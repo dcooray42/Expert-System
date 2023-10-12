@@ -1,3 +1,4 @@
+from collections import Counter
 from data import Rule, Fact
 
 def read_file(es, file_path):
@@ -10,6 +11,9 @@ def read_file(es, file_path):
             final_line = "".join(trimed_line.split())
             if not len(final_line):
                 continue
+            for key, value in Counter(final_line).items():
+                if key.isalpha() and value >= 2:
+                    raise Exception(f"Fact {key} is present {value} times in this line")
             if final_line.startswith("="):
                 init_fact = final_line[1:]
                 for fact in init_fact:
@@ -18,10 +22,8 @@ def read_file(es, file_path):
                             es.facts[fact] = Fact(fact, True, True)
                         elif not es.facts[fact].check_already_present():
                             es.facts[fact].initial_fact()
-                        else:
-                            raise Exception(f"Initial fact called twice or more: {fact}")
                     else:
-                        raise Exception(f"Intial fact is not a alphabetic character: {fact}")
+                        raise Exception(f"Intial fact is not an alphabetic character: {fact}")
             elif final_line.startswith("?"):
                 for char in final_line[1:]:
                     if char.isalpha():
