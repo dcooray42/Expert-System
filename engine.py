@@ -1,73 +1,131 @@
-def evaluate_expression(es, expression) :
-    if len(expression) == 1 :
+from data import Fact
+
+def evaluate_expression(expression):
+    if len(expression) == 1:
         operand = expression[0]
-        return backward_chain(es, operand)
+        return backward_chain(operand)
     stack = []
 
-    for token in expression :
-        if token.isalpha() :
+    for token in expression:
+        if isinstance(token, Fact):
             stack.append(token)
-        else :
+        else:
             operand = stack.pop()
-            operand = backward_chain(es, operand) if isinstance(operand, str) else operand
-            if token in "+|^" :
+            operand = backward_chain(operand) if isinstance(operand, Fact) else operand
+            if token in "+|^":
                 operand_bis = stack.pop()
-                operand_bis = backward_chain(es, operand_bis) if isinstance(operand_bis, str) else operand
-            if token == '+' :
+                operand_bis = backward_chain(operand_bis) if isinstance(operand_bis, Fact) else operand
+            if token == '+':
                 result = operand_bis and operand
-            elif token == '|' :
+            elif token == '|':
                 result = operand_bis or operand
-            elif token == '!' :
+            elif token == '!':
                 result = not operand
-            elif token == '^' :
+            elif token == '^':
                 result = operand_bis != operand
             stack.append(result)
     return stack[0]
 
 
-def backward_chain(es, query) :
+def backward_chain(query):
     
-    def val_to_check(es, conclusion, value) :
-        stack = []
-        for token in conclusion :
-            if token.isalpha() :
-                stack.append([token, True])
-            elif token == "!" :
-                top_stack = stack.pop()
-                top_stack[1] = False
-                stack.append(top_stack)
-        for token_combination in stack :
-            token = token_combination[0]
-            token_state = token_combination[1]
-            if ((es.facts[token].value != value and token_state == True)
-                or (es.facts[token].value == value and token_state == False)) and es.facts[token].check == True :
-                return False
+#    def val_to_check(conclusion, value):
+#        stack = []
+#        for token in conclusion:
+#            if isinstance(token, Fact):
+#                stack.append([token, True])
+#            elif token == "!":
+#                top_stack = stack.pop()
+#                top_stack[1] = False
+#                stack.append(top_stack)
+#        for token_combination in stack:
+#            token = token_combination[0]
+#            token_state = token_combination[1]
+#            if ((token.value != value and token_state == True)
+#                or (token.value == value and token_state == False)) and token.check == True:
+#                return False
+#        return True
+#
+#    def update_facts(conclusion, value):
+#        stack = []
+#        for token in conclusion:
+#            if isinstance(token, Fact):
+#                stack.append([token, True])
+#            elif token == "!":
+#                top_stack = stack.pop()
+#                top_stack[1] = False
+#                stack.append(top_stack)
+#        for token_combination in stack:
+#            token = token_combination[0]
+#            token_state = token_combination[1]
+#            token.value = value if token_state else not value
+#            token.check = True
+
+    def fact_sign(conclusion, fact):
+        index = 1
+        while index < len(conclusion):
+            if conclusion[index - 1] == fact:
+                if conclusion[index] == "!":
+                    return False
+            i += 1
         return True
+    
+    def return_value(rslt):
+        false_false = False
+        false_true = False
+        true_false = False
+        true_true = False
+        for iter in rslt:
+            if iter[0] == False and iter[1] == False:
+                false_false = True
+            elif iter[0] == False and iter[1] == True:
+                false_true = True
+            elif iter[0] == True and iter[1] == False:
+                true_false = True
+            else:
+                true_true = True
+        if (false_false and false_true) or (true_false and true_true):
+            raise Exception("error: Enexpected behaviour during value assignation")
+        if true_true or false_false:
+            return True
+        else:
+            return False
 
-    def update_facts(es, conclusion, value) :
-        stack = []
-        for token in conclusion :
-            if token.isalpha() :
-                stack.append([token, True])
-            elif token == "!" :
-                top_stack = stack.pop()
-                top_stack[1] = False
-                stack.append(top_stack)
-        for token_combination in stack :
-            token = token_combination[0]
-            token_state = token_combination[1]
-            es.facts[token].value = value if token_state else not value
-            es.facts[token].check = True
 
-    if es.facts[query].check == True :
-        return es.facts[query].value
+    print(f"{query.fact} = {query.value}, {query.check}")
+    store_rslt = []
+    if query.check == True:
+        return query.value
 
-    for rule in es.rules :
-        if query in rule.conclusion and len(set(es.initial_facts).intersection(set(rule.conclusion))) == 0 :
-            result = evaluate_expression(es, rule.condition)
-            if val_to_check(es, rule.conclusion, result) :
-                update_facts(es, rule.conclusion, result)
-                return result
+    for rule in query.rules:
+        if query in rule.conclusion:
+            print(f"query : {query.fact} | ", end="")
+            for token in rule.condition:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print(" = ", end="")
+            for token in rule.conclusion:
+                if isinstance(token, Fact):
+                    print(token.fact, end="")
+                else:
+                    print(token, end="")
+            print("\n----------------------------")
+            rule_rslt = []
 
-    update_facts(es, [query], False)
-    return False
+            rule_rslt.append(evaluate_expression(rule.condition))
+            rule_rslt.append(fact_sign(rule.conclusion, query))
+            store_rslt.append(rule_rslt)
+    query.value = return_value(store_rslt)
+    query.check = True
+    print(f"after {query.fact} = {query.value}, {query.check}")
+    return query.value
+#            if val_to_check(rule.conclusion, result):
+#                update_facts(rule.conclusion, result)
+#                return result
+
+#    update_facts([query], False)
+#    query.value = False
+#    query.check = True
+#    return False
