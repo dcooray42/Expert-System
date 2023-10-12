@@ -27,10 +27,8 @@ def read_file(es, file_path):
                     if char.isalpha():
                         if char not in es.facts.keys():
                             es.facts[char] = Fact(char)
-                            if es.facts[char] not in es.queries:
-                                es.queries.append(es.facts[char])
-                        else:
-                            raise Exception(f"This character is already present in the query line: {char}")
+                        if es.facts[char] not in es.queries:
+                            es.queries.append(es.facts[char])
                     else:
                         raise Exception(f"This character is not an alphabetic character in the query line: {char}")
             else:

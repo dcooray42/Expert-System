@@ -60,26 +60,26 @@ def backward_chain(query):
             return False
 
 
-    print(f"{query.fact} = {query.value}, {query.check}")
+#    print(f"{query.fact} = {query.value}, {query.check}")
     store_rslt = []
     if query.check == True:
         return query.value
 
     for rule in query.rules:
         if query in rule.conclusion:
-            print(f"query : {query.fact} | ", end="")
-            for token in rule.condition:
-                if isinstance(token, Fact):
-                    print(token.fact, end="")
-                else:
-                    print(token, end="")
-            print(" = ", end="")
-            for token in rule.conclusion:
-                if isinstance(token, Fact):
-                    print(token.fact, end="")
-                else:
-                    print(token, end="")
-            print("\n----------------------------")
+#            print(f"query : {query.fact} | ", end="")
+#            for token in rule.condition:
+#                if isinstance(token, Fact):
+#                    print(token.fact, end="")
+#                else:
+#                    print(token, end="")
+#            print(" = ", end="")
+#            for token in rule.conclusion:
+#                if isinstance(token, Fact):
+#                    print(token.fact, end="")
+#                else:
+#                    print(token, end="")
+#            print("\n----------------------------")
             rule_rslt = []
 
             rule_rslt.append(evaluate_expression(rule.condition))
@@ -87,5 +87,5 @@ def backward_chain(query):
             store_rslt.append(rule_rslt)
     query.value = return_value(store_rslt)
     query.check = True
-    print(f"after {query.fact} = {query.value}, {query.check}")
+#    print(f"after {query.fact} = {query.value}, {query.check}")
     return query.value
