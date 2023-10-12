@@ -13,7 +13,7 @@ def read_file(es, file_path):
                 continue
             for key, value in Counter(final_line).items():
                 if key.isalpha() and value >= 2:
-                    raise Exception(f"Fact {key} is present {value} times in this line")
+                    raise Exception(f"error: Fact {key} is present {value} times in this line")
             if final_line.startswith("="):
                 init_fact = final_line[1:]
                 for fact in init_fact:
@@ -23,7 +23,7 @@ def read_file(es, file_path):
                         elif not es.facts[fact].check_already_present():
                             es.facts[fact].initial_fact()
                     else:
-                        raise Exception(f"Intial fact is not an alphabetic character: {fact}")
+                        raise Exception(f"error: Intial fact is not an alphabetic character: {fact}")
             elif final_line.startswith("?"):
                 for char in final_line[1:]:
                     if char.isalpha():
@@ -32,7 +32,7 @@ def read_file(es, file_path):
                         if es.facts[char] not in es.queries:
                             es.queries.append(es.facts[char])
                     else:
-                        raise Exception(f"This character is not an alphabetic character in the query line: {char}")
+                        raise Exception(f"error: This character is not an alphabetic character in the query line: {char}")
             else:
                 if final_line.find("=>") > 0:
                     line_splited = final_line.split("=>")
@@ -43,12 +43,12 @@ def read_file(es, file_path):
                         if not any(char in "|^" for char in conclusion):
                             rules.append(Rule(condition, conclusion))
                         else:
-                            raise Exception(f"One or multiple of these operations (OR / |) or (XOR / ^) is / are present in the conclusion.")
+                            raise Exception(f"error: One or multiple of these operations (OR / |) or (XOR / ^) is / are present in the conclusion.")
                     else:
                         malformed_str = line_splited[0] if not exp_1 else line_splited[1]
-                        raise Exception(f"This expression is malformed: {malformed_str}")
+                        raise Exception(f"error: This expression is malformed: {malformed_str}")
                 else:
-                    raise Exception(f"This expression is malformed: {final_line}")
+                    raise Exception(f"error: This expression is malformed: {final_line}")
     es.populate_facts(rules)
 
 def is_well_formed(expression):

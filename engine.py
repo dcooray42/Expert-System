@@ -1,9 +1,10 @@
+from collections import Counter
 from data import Fact
 
-def evaluate_expression(expression):
+def evaluate_expression(expression, fact_occ):
     if len(expression) == 1:
         operand = expression[0]
-        return backward_chain(operand)
+        return backward_chain(operand, fact_occ + [operand])
     stack = []
 
     for token in expression:
@@ -11,10 +12,10 @@ def evaluate_expression(expression):
             stack.append(token)
         else:
             operand = stack.pop()
-            operand = backward_chain(operand) if isinstance(operand, Fact) else operand
+            operand = backward_chain(operand, fact_occ + [operand]) if isinstance(operand, Fact) else operand
             if token in "+|^":
                 operand_bis = stack.pop()
-                operand_bis = backward_chain(operand_bis) if isinstance(operand_bis, Fact) else operand_bis
+                operand_bis = backward_chain(operand_bis, fact_occ + [operand_bis]) if isinstance(operand_bis, Fact) else operand_bis
             if token == '+':
                 result = operand_bis and operand
             elif token == '|':
@@ -27,7 +28,11 @@ def evaluate_expression(expression):
     return stack[0]
 
 
-def backward_chain(query):
+def backward_chain(query, fact_occ = []):
+
+    for key, value in Counter(fact_occ).items():
+        if value >= 2:
+            raise Exception(f"error: Fact {key.fact} is present in an infinite recursive loop")
 
     def fact_sign(conclusion, fact):
         index = 1
@@ -59,33 +64,16 @@ def backward_chain(query):
         else:
             return False
 
-
-#    print(f"{query.fact} = {query.value}, {query.check}")
     store_rslt = []
     if query.check == True:
         return query.value
 
     for rule in query.rules:
         if query in rule.conclusion:
-#            print(f"query : {query.fact} | ", end="")
-#            for token in rule.condition:
-#                if isinstance(token, Fact):
-#                    print(token.fact, end="")
-#                else:
-#                    print(token, end="")
-#            print(" = ", end="")
-#            for token in rule.conclusion:
-#                if isinstance(token, Fact):
-#                    print(token.fact, end="")
-#                else:
-#                    print(token, end="")
-#            print("\n----------------------------")
             rule_rslt = []
-
-            rule_rslt.append(evaluate_expression(rule.condition))
+            rule_rslt.append(evaluate_expression(rule.condition, fact_occ))
             rule_rslt.append(fact_sign(rule.conclusion, query))
             store_rslt.append(rule_rslt)
     query.value = return_value(store_rslt)
     query.check = True
-#    print(f"after {query.fact} = {query.value}, {query.check}")
     return query.value
